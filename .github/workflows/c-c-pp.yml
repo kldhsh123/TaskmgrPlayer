@@ -1,0 +1,45 @@
+name: Build TaskmgrPlayer on Windows
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      # 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 设置 Visual Studio
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v1
+
+      # 设置 Visual Studio 版本（可选）
+      - name: Set up Visual Studio
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 6.0 # 根据项目需要调整 .NET 版本
+
+      # 安装依赖项（如果需要）
+      - name: Install dependencies
+        run: |
+          choco install vcredist-all -y
+
+      # 构建项目
+      - name: Build solution
+        run: |
+          msbuild TaskmgrPlayer.sln /p:Configuration=Release
+
+      # 打包可执行文件
+      - name: Archive build output
+        uses: actions/upload-artifact@v3
+        with:
+          name: TaskmgrPlayer
+          path: TaskmgrPlayer\Release\
